@@ -10,4 +10,6 @@
 <h1>{{ post.title|censor }}</h1>
 <h3>{{ post.dateCreation|date:'d.m.Y' }}</h3>
 {{ post.text|censor }}
+<hr>
+{{ post.postType }}
 {% endblock content %}
