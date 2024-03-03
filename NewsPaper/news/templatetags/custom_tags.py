@@ -15,3 +15,8 @@ def url_replace(context, **kwargs):
     for k, v in kwargs.items():
         d[k] = v
     return d.urlencode()
+
+
+@register.simple_tag()
+def new_var(value=None):
+    return value

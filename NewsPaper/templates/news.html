@@ -17,18 +17,38 @@
 <hr>
     {% if posts %}
         <h4>{{ page_obj.paginator.count }} публикаций</h4>
+        {% if perms.news.add_post %}
+            <a href="/news/create">Опубликовать новость </a>
+            <a href="/articles/create">| Опубликовать статью</a>
+        {% endif %}
         <hr>
         <table>
             <tr style="background-color: grey; color: white;">
                 <td>Заголовок</td>
                 <td>Дата публикации</td>
                 <td>Текст</td>
+                {% if perms.news.change_post or perms.news.delete_post %}
+                <td>Действия</td>
+                {% endif %}
             </tr>
             {% for post in posts %}
             <tr>
                 <td>{{ post.title|censor }}</td>
                 <td>{{ post.dateCreation|date:'d.m.Y' }}</td>
                 <td>{{ post.text|truncatewords:20|censor }}</td>
+                <td>
+                    {% if perms.news.add_post %}
+                        {% if post.postType == 'NW' %}
+                            {% new_var 'news' as type_url_path %}
+                        {% else %}
+                            {% new_var 'articles' as type_url_path %}
+                        {% endif %}
+                    <a href="/{{ type_url_path }}/{{ post.id }}/edit"> Изменить </a> |
+                    {% endif %}
+                    {% if perms.news.add_post %}
+                    <a href="/{{ type_url_path }}/{{ post.id }}/delete"> Удалить </a>
+                    {% endif %}
+                </td>
             </tr>
             {% endfor %}
         </table>

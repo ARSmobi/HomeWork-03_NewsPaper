@@ -3,6 +3,7 @@ from .models import Post
 from .forms import PostForm
 from django.urls import reverse_lazy
 from .filters import PostFilter
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
 
 class PostList(ListView):
@@ -29,11 +30,11 @@ class PostDetail(DetailView):
     context_object_name = 'post'
 
 
-class PostCreate(CreateView):
+class PostCreate(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    permission_required = ('news.add_post')
     form_class = PostForm
     model = Post
     template_name = 'post_edit.html'
-    context_object_name = 'post'
 
     def form_valid(self, form):
         current_url = self.request.path
@@ -44,22 +45,27 @@ class PostCreate(CreateView):
             post.postType = 'AR'
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        current_url = self.request.path
+        if current_url == '/news/create/':
+            context['type_url_path'] = 'новости'
+        else:
+            context['type_url_path'] = 'статьи'
+        return context
 
-class PostUpdate(UpdateView):
+
+class PostUpdate(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    permission_required = ('news.change_post')
     form_class = PostForm
     model = Post
     template_name = 'post_edit.html'
-
-    # def form_valid(self, form):
-    #     post = form.save(commit=False)
-    #     post.postType = 'NW'
+    context_object_name = 'post'
 
 
-class PostDelete(DeleteView):
+class PostDelete(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    permission_required = ('news.delete_post')
     model = Post
     template_name = 'post_delete.html'
     success_url = reverse_lazy('post_list')
-
-    # def form_valid(self, form):
-    #     post = form.save(commit=False)
-    #     post.postType = 'NW'
+    context_object_name = 'post'

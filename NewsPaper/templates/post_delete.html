@@ -1,10 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'default.html' %}
+
+{% block title %}
+Удаление поста
+{% endblock title %}
+
+{% block content %}
+<h3>Удаление поста</h3>
+<h2>{{ post.title }}</h2>
+<form action="" method="post">
+    {% csrf_token %}
+    <p style="color: red;">Вы уверены что хотите удалить пост?</p>
+    <input type="submit" value="Удалить">
+</form>
+{% endblock content %}
