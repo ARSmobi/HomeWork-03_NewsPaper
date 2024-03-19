@@ -73,4 +73,10 @@
         <h4>Публикаций нет</h4>
     {% endif %}
 
+    <br>
+    {% if not is_author %}
+        <a href="accounts/upgrade_user" style="color:green;">Стать автором</a>
+    {% else %}
+        <p style="color: green;">Вы являетесь автором</p>
+    {% endif %}
 {% endblock content %}
