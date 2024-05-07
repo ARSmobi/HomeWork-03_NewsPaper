@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import Post, Subscription, Category
 from .forms import PostForm
@@ -33,10 +34,21 @@ class PostDetail(DetailView):
     model = Post
     template_name = 'post.html'
     context_object_name = 'post'
+    queryset = Post.objects.all()
+
+    def get_object(self, *args, **kwargs):  # переопределяем метод получения объекта, как ни странно
+        obj = cache.get(f'post-{self.kwargs["pk"]}', None)  # кэш очень похож на словарь, и метод get действует так же.
+        # Он забирает значение по ключу, если его нет, то забирает None.
+
+        # если объекта нет в кэше, то получаем его и записываем в кэш
+        if not obj:
+            obj = super().get_object(queryset=self.queryset)
+            cache.set(f'post-{self.kwargs["pk"]}', obj)
+        return obj
 
 
 class PostCreate(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
-    permission_required = ('news.add_post')
+    permission_required = ('news.add_post',)
     form_class = PostForm
     model = Post
     template_name = 'post_edit.html'
@@ -62,7 +74,7 @@ class PostCreate(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
 
 
 class PostUpdate(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
-    permission_required = ('news.change_post')
+    permission_required = ('news.change_post',)
     form_class = PostForm
     model = Post
     template_name = 'post_edit.html'
@@ -70,7 +82,7 @@ class PostUpdate(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
 
 
 class PostDelete(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
-    permission_required = ('news.delete_post')
+    permission_required = ('news.delete_post',)
     model = Post
     template_name = 'post_delete.html'
     success_url = reverse_lazy('post_list')
